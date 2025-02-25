@@ -1,5 +1,0 @@
-echo streamlit > requirements.txt
-echo pandas >> requirements.txt
-echo plotly >> requirements.txt
-echo requests >> requirements.txt
-echo xlsxwriter >> requirements.txt
