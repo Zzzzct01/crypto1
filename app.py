@@ -21,7 +21,7 @@ df = pd.read_csv(uploaded_file, encoding="utf-8")
 df.columns = df.columns.str.replace(r'\ufeff', '', regex=True).str.strip()
     
     # 確保必要欄位存在
-    required_columns = ["Symbol", "Trade Time", "Filled Amount", "Filled Price", "Trading Volume", "Fee", "Direction"]
+required_columns = ["Symbol", "Trade Time", "Filled Amount", "Filled Price", "Trading Volume", "Fee", "Direction"]
     if not all(col in df.columns for col in required_columns):
         st.error("CSV 欄位缺失，請確認格式。")
     else:
