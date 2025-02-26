@@ -12,7 +12,13 @@ st.title("📊 虛擬貨幣交易管理系統")
 uploaded_file = st.file_uploader("上傳交易紀錄 CSV", type=["csv"])
 
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+    import pandas as pd
+
+# 讀取 CSV 並處理 BOM（Byte Order Mark）
+df = pd.read_csv(uploaded_file, encoding="utf-8")
+
+# 修正欄位名稱，去除隱藏字元 (BOM) 與多餘空格
+df.columns = df.columns.str.replace(r'\ufeff', '', regex=True).str.strip()
     
     # 確保必要欄位存在
     required_columns = ["Symbol", "Trade Time", "Filled Amount", "Filled Price", "Trading Volume", "Fee", "Direction"]
