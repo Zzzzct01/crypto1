@@ -19,7 +19,8 @@ if uploaded_file:
     df.columns = df.columns.str.replace(r'\ufeff', '', regex=True).str.strip()
 
     # 確保必要欄位存在
-    required_columns = ["Symbol", "Trade Time", "Filled Amount", "Filled Price", "Trading Volume", "Fee", "Direction"]
+    # 移除 "Direction" 欄位，因為 CSV 檔案中沒有這個欄位
+    required_columns = ["Symbol", "Trade Time", "Filled Amount", "Filled Price", "Trading Volume", "Fee"]
     if not all(col in df.columns for col in required_columns):
         st.error("CSV 欄位缺失，請確認格式。")
         st.stop()  # **停止執行，避免報錯**
@@ -27,6 +28,15 @@ if uploaded_file:
     # 轉換數據格式
     df["Trade Time"] = pd.to_datetime(df["Trade Time"])
     df = df.sort_values(by="Trade Time")
+
+    # 填補 'taker/maker' 欄位的空值，避免後續計算出錯
+    # 這裡使用 'unknown' 填補，您可以根據實際情況選擇其他填補方式
+    df['taker/maker'] = df['taker/maker'].fillna('unknown')
+
+    # 計算交易方向 (買入/賣出)
+    # 這裡假設 'taker/maker' 為 'maker' 時為買入，'taker' 時為賣出
+    # 您可能需要根據實際情況調整判斷邏輯
+    df['Direction'] = df['taker/maker'].apply(lambda x: 'buy' if x == 'maker' else 'sell')
 
     # 計算持倉量與成本
     df["Total Cost"] = df["Filled Amount"] * df["Filled Price"] + df["Fee"]
@@ -46,6 +56,9 @@ if uploaded_file:
         if "data" in response and len(response["data"]) > 0:
             return float(response["data"][0]["last"])
         return None
+
+    # 修改 Symbol 格式，移除 "-SWAP"
+    position_summary["Symbol"] = position_summary["Symbol"].str.replace("-SWAP", "")
 
     position_summary["Latest Price"] = position_summary["Symbol"].apply(get_latest_price)
 
